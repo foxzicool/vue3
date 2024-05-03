@@ -45,55 +45,61 @@
   
   
   <script>
-  import axios from "axios";
-  import useJwt from "../composables/useJwt";
-  
-  export default {
-    data() {
-      return {
-        user: {
-          username: "",
-          password: "",
-        },
-        showPassword: false,
-        isSigningIn: false,
-        errorMessage: "",
-      };
-    },
-    setup() {
-      const { setToken } = useJwt();
-      return {
-        setToken,
-      };
-    },
-    methods: {
-      async signIn() {
-        this.isSigningIn = true;
-        const loginRequest = {
-          username: this.user.username,
-          password: this.user.password,
-        };
-  
-        try {
-          const response = await axios.post("/api/login", loginRequest);
-          if (response.status === 200) {
-            console.log(response.data);
-            this.setToken(response.data.token);  // 假設後端回傳的 token 在 response.data.token
-            this.$router.push("/dashboard/products");
-          } else {
-            this.errorMessage = "Login failed. Please check your credentials.";
-          }
-        } catch (error) {
-          console.error("Login failed:", error);
-          this.errorMessage = error.response ? error.response.data : "Login failed. Please check your credentials.";
-        } finally {
-          this.isSigningIn = false;
-        }
+import axios from "axios";
+import useJwt from "../composables/useJwt";
+import visitRecorder from '@/methods/visitRecorder';  // 确保路径正确
+
+export default {
+  name: 'ExampleComponent',
+  data() {
+    return {
+      user: {
+        username: "",
+        password: "",
       },
+      showPassword: false,
+      isSigningIn: false,
+      errorMessage: "",
+    };
+  },
+  setup() {
+    const { setToken } = useJwt();
+    return {
+      setToken,
+    };
+  },
+  methods: {
+    async signIn() {
+      this.isSigningIn = true;
+      const loginRequest = {
+        username: this.user.username,
+        password: this.user.password,
+      };
+
+      try {
+        const response = await axios.post("/api/login", loginRequest);
+        if (response.status === 200) {
+          console.log(response.data);
+          this.setToken(response.data.token);  // Assuming the backend returns the token in response.data.token
+          this.$router.push("/dashboard/products");
+        } else {
+          this.errorMessage = "Login failed. Please check your credentials.";
+        }
+      } catch (error) {
+        console.error("Login failed:", error);
+        this.errorMessage = error.response ? error.response.data : "Login failed. Please check your credentials.";
+      } finally {
+        this.isSigningIn = false;
+      }
     },
-  };
-  
+  },
+  created() {
+    visitRecorder.recordVisit('loginPage');  // 使用公共服务记录访问
+  }
+};
+
   </script>
+  
   
   <style>
   @import url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');

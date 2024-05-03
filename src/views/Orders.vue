@@ -38,15 +38,19 @@
 <script>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import visitRecorder from '@/methods/visitRecorder';
 
 export default {
+  name: 'Order',
   setup() {
     const orders = ref([]);
     const isLoading = ref(false);
 
+    // 记录访问，放在 setup 函数开始处
+    visitRecorder.recordVisit('OrderPage');
+
     const getOrders = () => {
       const url = `/api/user_orders`;
-
       isLoading.value = true;
       axios.get(url).then((response) => {
         orders.value = response.data;
@@ -68,3 +72,4 @@ export default {
   }
 }
 </script>
+
