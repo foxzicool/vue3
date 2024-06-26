@@ -50,6 +50,9 @@ export default {
 
     visitRecorder.recordVisit('OrderPage');
 
+    // 记录访问，放在 setup 函数开始处
+    visitRecorder.recordVisit('OrderPage');
+
     const getOrders = () => {
       const url = `/api/user_orders`;
       isLoading.value = true;
@@ -96,8 +99,11 @@ export default {
 }
 </script>
 
+<<<<<<< HEAD
 <style>
 .highlight {
   color: red;
 }
 </style>
+=======
+>>>>>>> 8860ddbbdea23f517db8188f717503fe8d553e28

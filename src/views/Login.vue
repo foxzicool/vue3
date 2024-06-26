@@ -182,7 +182,11 @@ export default {
         if (response.status === 200) {
           console.log(response.data);
           this.setToken(response.data.token);  // Assuming the backend returns the token in response.data.token
+<<<<<<< HEAD
           this.$router.push("/dashboard/orders");
+=======
+          this.$router.push("/dashboard/products");
+>>>>>>> 8860ddbbdea23f517db8188f717503fe8d553e28
         } else {
           this.errorMessage = "Login failed. Please check your credentials.";
         }
@@ -198,4 +202,16 @@ export default {
     visitRecorder.recordVisit('loginPage');  // 使用公共服务记录访问
   }
 };
+<<<<<<< HEAD
   </script>
+=======
+
+  </script>
+  
+  
+  <style>
+  @import url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
+  @import url('https://fonts.googleapis.com/css?family=Questrial&display=swap');
+  @import url('https://unpkg.com/bulma@0.9.4/css/bulma.min.css');
+  </style>
+>>>>>>> 8860ddbbdea23f517db8188f717503fe8d553e28
