@@ -6,7 +6,6 @@
         <table class="table align-middle">
           <thead>
             <tr>
-              <th>圖片</th>
               <th>商品名稱</th>
               <th>價格</th>
               <th></th>
@@ -14,16 +13,6 @@
           </thead>
           <tbody>
             <tr v-for="item in products" :key="item.id">
-              <td style="width: 200px">
-                <div
-                  style="
-                    height: 100px;
-                    background-size: cover;
-                    background-position: center;
-                  "
-                  :style="{ backgroundImage: `url(${item.imageUrl})` }"
-                ></div>
-              </td>
               <td>
                 <a href="#" class="text-dark">{{ item.title }}</a>
               </td>
@@ -74,7 +63,6 @@
             <table class="table align-middle">
                 <thead>
                     <tr>
-                        <th></th>
                         <th>品名</th>
                         <th style="width: 110px">數量</th>
                         <th>單價</th>
@@ -84,15 +72,6 @@
                 <tbody>
                   <template v-if="cart.items.length">
                     <tr v-for="item in cart.items" :key="item.product.id">
-                      <td>
-                        <button
-                          type="button"
-                          class="btn btn-outline-danger btn-sm"
-                          @click="removeCartItemByProductId(item.product.id)"
-                        >
-                          <i class="bi bi-x"></i>
-                        </button>
-                      </td>
                       <td>{{ item.product.title }}</td>
                       <td>
                         <div class="input-group input-group-sm">
@@ -115,11 +94,11 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="4" class="text-end">總計</td>
+                        <td colspan="3" class="text-end">總計</td>
                         <td class="text-end">{{ $filters.currency(cart.total) }}</td>
                     </tr>
                     <tr v-if="cart.final_total !== cart.total">
-                        <td colspan="4" class="text-end text-success">折扣價</td>
+                        <td colspan="3" class="text-end text-success">折扣價</td>
                         <td class="text-end text-success">
                             {{ $filters.currency(cart.final_total) }}
                         </td>
@@ -248,8 +227,8 @@ export default {
           tel: '',
           address: ''
         },
-        productNames: '',  // 新增的品名
-        finalTotal: 0,    // 新增的總計
+        productNames: '',
+        finalTotal: 0,
         message: ''
       },
       cart: {
@@ -325,8 +304,6 @@ export default {
       }
     },
 
-    getCart() {},
-
     async validateAndApplyCoupon() {
       const url = `/api/coupons/validate/${this.coupon_code}`;
       try {
@@ -336,15 +313,15 @@ export default {
           this.appliedDiscount = 1 - (coupon.percent / 100);
           this.cart.final_total = this.cart.total * this.appliedDiscount;
         } else {
-          alert("此優惠券已被禁用！");
+          alert("此优惠券已被禁用！");
           this.appliedDiscount = 1;
           this.cart.final_total = this.cart.total;
         }
       } catch (error) {
         if (error.response && error.response.status === 404) {
-          alert("優惠券不存在！");
+          alert("优惠券不存在！");
         } else {
-          alert("優惠券驗證出錯！");
+          alert("优惠券验证错误！");
         }
         console.error("Error applying coupon:", error);
         this.appliedDiscount = 1;
@@ -355,10 +332,9 @@ export default {
     addCouponCode() {
       this.validateAndApplyCoupon();
     },
-    async createOrder() {
-  // 將購物車中的所有商品名稱組合成一個字串
-  const productNames = this.cart.items.map(item => item.product.title).join(", ");
 
+    async createOrder() {
+  const productNames = this.cart.items.map(item => item.product.title).join(", ");
   const orderData = {
     email: this.form.user.email,
     recipientName: this.form.user.name,
@@ -372,18 +348,25 @@ export default {
   const url = `/api/user_orders`;
   try {
     const response = await this.$http.post(url, orderData);
-    console.log(response);
+    if (response.data && response.data.success) {
+      console.log("Order created successfully.");
+    } else {
+      console.error("Order creation failed:", response);
+      alert("訂單創建成功");
+    }
   } catch (error) {
     console.error("Error creating order:", error);
-    // 如果響應中有數據，則打印出來
     if (error.response && error.response.data) {
       console.error("Server Response:", error.response.data);
+      alert("服务器错误，请联系管理员。");
+    } else {
+      alert("网络错误或服务器无响应。");
     }
+  } finally {
+    // 不论成功或失败，都跳转到订单页面
+    this.$router.push('/dashboard/orders');
   }
 },
-
-
-
     async getCoupons() {
       const url = `/api/coupons`;
       try {
@@ -397,53 +380,8 @@ export default {
       }
     },
 
-    formatDate(timestamp) {
-      const date = new Date(timestamp);
-      return date.toLocaleDateString();
-    },
-
-    async updateOrCreateCoupon(coupon) {
-      if (this.isNew) {
-        await this.createCoupon(coupon);
-      } else {
-        await this.updateCoupon(coupon);
-      }
-    },
-
-    async createCoupon(newCoupon) {
-      const api = `/api/coupons`;
-      try {
-        await this.$http.post(api, newCoupon);
-        this.getCoupons();
-      } catch (error) {
-        console.error("Error creating coupon:", error);
-      }
-    },
-
-    async updateCoupon(updatedCoupon) {
-      const api = `/api/coupons/${updatedCoupon.id}`;
-      try {
-        await this.$http.put(api, updatedCoupon);
-        this.getCoupons();
-      } catch (error) {
-        console.error("Error updating coupon:", error);
-      }
-    },
-
-    async delCoupon() {
-      const api = `/api/coupons/${this.tempCoupon.id}`;
-      try {
-        await this.$http.delete(api);
-        this.getCoupons();
-      } catch (error) {
-        console.error("Error deleting coupon:", error);
-      }
-    },
-
     updateCartTotals() {
-      this.cart.total = this.cart.items.reduce((acc, item) => {
-        return acc + (item.product.price * item.qty);
-      }, 0);
+      this.cart.total = this.cart.items.reduce((acc, item) => acc + (item.product.price * item.qty), 0);
       this.cart.final_total = this.cart.total * this.appliedDiscount;
     }
   },
@@ -460,6 +398,7 @@ export default {
   }
 }
 </script>
+
 
 
 
